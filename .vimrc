@@ -22,6 +22,7 @@ Plugin 'scrooloose/syntastic'
 " Plugin 'andviro/flake8-vim'
 Plugin 'scrooloose/nerdtree'
 Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-surround'
 Plugin 'davidhalter/jedi-vim'
 Plugin 'ervandew/supertab'
 Plugin 'SirVer/ultisnips'
@@ -29,7 +30,8 @@ Plugin 'honza/vim-snippets'
 Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'vim-airline/vim-airline'
 Plugin 'leafgarland/typescript-vim'
-Plugin 'ivanov/vim-ipython'
+Bundle "lepture/vim-jinja"
+Plugin 'rafi/awesome-vim-colorschemes'
 
 " NERDTree options
 let NERDTreeIgnore=['\.pyc$', '\~$'] "ignore files in NERDTree
@@ -60,9 +62,7 @@ nnoremap <leader>ue :UltiSnipsEdit<cr>
 
 " python script to create docstring snippets
 source ~/.vim/docsnip.py.vim
-
-" have to manually source vim-ipython integration file
-source ~/.vim/bundle/vim-ipython/ftplugin/python/ipy.vim
+source ~/.vim/passthrough.py.vim
 
 " airline options
 set laststatus=2
@@ -123,7 +123,10 @@ let g:syntastic_check_on_open = 0
 let g:syntastic_check_on_wq = 0
 let g:syntastic_python_checkers=['flake8'] " , 'pylint']
 " let g:syntastic_python_flake8_args='--ignore=E501,E225,E128'
+
+" set filetypes for certain nonstandard file extensions
 autocmd BufNewFile,BufRead *.ts setlocal filetype=typescript
+autocmd BufNewFile,BufRead *.j2,*.jinja,*.jinja2 set filetype=jinja
 
 filetype indent plugin on
 
@@ -154,3 +157,5 @@ au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
 
 " highlight overlength lines
 " highlight Error ctermbg=red ctermfg=white guibg=#592929
+
+colorscheme onedark
