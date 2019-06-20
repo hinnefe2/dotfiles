@@ -30,8 +30,15 @@ Plugin 'honza/vim-snippets'
 Plugin 'ctrlpvim/ctrlp.vim'
 Plugin 'vim-airline/vim-airline'
 Plugin 'leafgarland/typescript-vim'
-Bundle "lepture/vim-jinja"
+Bundle 'lepture/vim-jinja'
 Plugin 'rafi/awesome-vim-colorschemes'
+Plugin 'mgedmin/coverage-highlight.vim'
+Plugin 'jpalardy/vim-slime'
+
+" Vim Slime options
+let g:slime_target = 'tmux'
+let g:slime_default_config = {"socket_name": "default", "target_pane": "{right-of}"}
+let g:slime_python_ipython = 1
 
 " NERDTree options
 let NERDTreeIgnore=['\.pyc$', '\~$'] "ignore files in NERDTree
@@ -73,7 +80,7 @@ let g:airline#extensions#tabline#enabled = 1
 
 let python_highlight_all=1
 syntax on
-
+" 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -90,8 +97,8 @@ set tabstop=4     " a tab is four spaces
 set backspace=indent,eol,start
                     " allow backspacing over everything in insert mode
 set autoindent    " always set autoindenting on
+set smartindent   " always set smartindenting on
 set copyindent    " copy the previous indentation on autoindenting
-set shiftwidth=4  " number of spaces to use for autoindenting
 set shiftround    " use multiple of shiftwidth when indenting with '<' and '>'
 set showmatch     " set show matching parenthesis
 set ignorecase    " ignore case when searching
@@ -111,6 +118,9 @@ set expandtab
 " tab stuff for yaml files"
 autocmd FileType yaml setlocal shiftwidth=2 tabstop=2
 autocmd FileType yml setlocal shiftwidth=2 tabstop=2
+
+" for editing crontabs on osx, per https://superuser.com/questions/359580/error-adding-cronjobs-in-mac-os-x-lion
+autocmd filetype crontab setlocal nobackup nowritebackup
 
 " syntastic options "
 set statusline+=%#warningmsg#
@@ -150,6 +160,12 @@ map gn :bn<cr>
 map gp :bp<cr>
 map <leader>bd :bd<cr>
 map <leader>qq :qa!<cr>
+map <leader>wq :wqa<cr>
+map <leader>nn :set nonumber<cr>
+map <leader>yn :set number<cr>
+map <leader>np :set nopaste<cr>
+map <leader>np :set nopaste<cr>
+map <leader>yp :set paste<cr>
 
 " flag unneccesary whitespace
 highlight BadWhitespace ctermbg=red guibg=darkred
@@ -159,3 +175,20 @@ au BufRead,BufNewFile *.py,*.pyw,*.c,*.h match BadWhitespace /\s\+$/
 " highlight Error ctermbg=red ctermfg=white guibg=#592929
 
 colorscheme onedark
+
+" from https://stackoverflow.com/questions/21346068/slow-performance-on-ctrlp-it-doesnt-work-to-ignore-some-folders
+" to speed up ctrlp searching / indexing
+let g:ctrlp_cache_dir = $HOME . '/.cache/ctrlp'
+if executable('ag')
+      let g:ctrlp_user_command = 'ag %s -l --nocolor -g ""'
+  endif
+
+" Add the virtualenv's site-packages to vim path
+py3 << EOF
+import os, sys, pathlib
+if 'CONDA_PREFIX' in os.environ:
+    venv = os.getenv('CONDA_PREFIX')
+    site_packages = next(pathlib.Path(venv, 'lib').glob('python*/site-packages'), None)
+    if site_packages:
+        sys.path.insert(0, str(site_packages))
+EOF
