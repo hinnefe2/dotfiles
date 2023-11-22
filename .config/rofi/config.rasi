@@ -1,0 +1,14 @@
+@theme "/usr/share/rofi/themes/gruvbox-dark-soft.rasi"
+
+
+element {
+  orientation: horizontal;
+  children: [ element-text, element-icon ];
+  spacing: 5px;
+}
+
+* {
+    font: "Noto Sans Regular 20";
+}
+
+
