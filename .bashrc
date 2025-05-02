@@ -56,7 +56,9 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
-if [ "$color_prompt" = yes ]; then
+if [ -n "$CODER_OWNER" ]; then
+    PS1='\[\033[0;32m\]${CODER_OWNER:-\u}@${CODER_WORKSPACE_NAME:-\h}\[\033[0m\] \[\033[1;34m\]\w\[\033[00m\]\[\033[0;33m\]$(__git_ps1)\[\033[0m\] \[\033[1;37m\]\$\[\033[0m\] '
+elif [ "$color_prompt" = yes ]; then
     PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
