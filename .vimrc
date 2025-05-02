@@ -1,3 +1,9 @@
+" install Vundle if it's not already present
+if !isdirectory(expand('~/.vim/bundle/Vundle.vim'))
+    silent !git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+    autocmd VimEnter * PluginInstall | qall
+endif
+
 " most Vundle stuff copied from
 " https://realpython.com/blog/python/vim-and-python-a-match-made-in-heaven/
 
