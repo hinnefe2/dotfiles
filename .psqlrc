@@ -1,0 +1,14 @@
+-- Enable expanded display when output is wide
+\x auto
+
+-- Show query execution time
+\timing
+
+-- Better null display
+\pset null '(null)'
+
+-- Improved table format
+\pset border 2
+
+-- Command history
+\set HISTSIZE 10000
