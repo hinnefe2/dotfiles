@@ -32,7 +32,15 @@ If a short description was NOT provided by the user, generate a 2-3 word kebab-c
 - "Add retry logic to webhook" → `add-webhook-retry`
 - "Update user message styling" → `update-msg-styling`
 
-### 3. Build the worktree name
+### 3. Mark the ticket as In Progress
+
+Use the `save_issue` Linear MCP tool to update the ticket status:
+
+```
+save_issue(id: "<TICKET-ID>", state: "In Progress")
+```
+
+### 4. Build the worktree name
 
 Construct the worktree/branch name as: `<ticket-id-lowercase>-<short-description>`
 
@@ -41,7 +49,7 @@ Examples:
 - `cap-4428-crf-ui-changes`
 - `ai-123-add-retry`
 
-### 4. Create a tmux window and set up the worktree
+### 5. Create a tmux window and set up the worktree
 
 Run the following commands via Bash. These must be sequential since each depends on the previous:
 
@@ -60,15 +68,22 @@ Wait a moment for the worktree to be created (sleep 3), then verify it exists:
 ls -d ~/picnic-<worktree-name>
 ```
 
-### 5. Launch Claude Code in plan mode
+### 6. Launch Claude Code in plan mode
 
-In the same tmux window, start Claude Code in plan mode with a prompt that instructs it to plan the ticket:
+In the same tmux window, first start Claude Code in plan mode, wait for it to initialize, then send the prompt as input:
 
 ```bash
-tmux send-keys -t "<TICKET-ID>" "claude --permission-mode plan -p 'You are working on Linear ticket <TICKET-ID>. The ticket URL is <ticket-url>. Fetch the ticket details from Linear, understand what needs to be done, and create a detailed implementation plan. Save the plan to .plans/<worktree-name>.md. If you need human input to proceed, clearly state what you need.'" Enter
+# Start Claude Code in plan mode (no -p flag)
+tmux send-keys -t "<TICKET-ID>" "claude --permission-mode plan" Enter
+
+# Wait for Claude Code to initialize and show its prompt
+sleep 5
+
+# Send the actual prompt as user input to the running Claude session
+tmux send-keys -t "<TICKET-ID>" "You are working on Linear ticket <TICKET-ID>. The ticket URL is <ticket-url>. Fetch the ticket details from Linear, understand what needs to be done, and create a detailed implementation plan. Save the plan to .plans/<worktree-name>.md. If you need human input to proceed, clearly state what you need." Enter
 ```
 
-### 6. Report back
+### 7. Report back
 
 Tell the user:
 - The tmux window name (ticket ID)

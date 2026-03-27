@@ -1,7 +1,7 @@
 ---
 name: where-was-i
 description: Re-orient to in-progress work on a branch. Use when the user says "where was I", "what was I doing", "catch me up", "what's the status", "re-orient", or returns to a branch after time away and needs a quick summary of what they're working on and where things stand.
-allowed-tools: Bash(git *), Bash(gh *), Grep, Glob, Read
+allowed-tools: Bash(git *), Bash(gh *), Grep, Glob, Read, mcp__linear__get_issue
 ---
 
 # Where Was I?
@@ -46,11 +46,21 @@ gh pr view --json title,body,state,url 2>/dev/null || echo "NO_PR"
 
 ### Step 2: If a ticket ID was found, fetch from Linear
 
-Use the Linear MCP tool `get_issue` to fetch the ticket title, description, and status. This gives the "why" behind the work.
+Use the Linear MCP tool `mcp__linear__get_issue` to fetch the ticket title, description, and status. This gives the "why" behind the work.
 
-### Step 3: Check conversation history
+### Step 3: Check for a plan file
 
-Look at the current conversation context. If this is a resumed session, there may be earlier messages explaining the goal. Note any plan or task list that was established.
+Look for a plan file associated with this branch in `.plans/`:
+
+```bash
+# Check for plan files matching the branch name
+BRANCH=$(git branch --show-current)
+ls -la .plans/ 2>/dev/null | grep -i "$(echo $BRANCH | tr '-' '.')" || echo "NO_PLAN"
+```
+
+Also check if there's a plan file that matches any ticket ID found in Step 1.
+
+If a plan is found, read it — it contains the implementation strategy and progress tracking.
 
 ### Step 4: Synthesize a brief summary
 
@@ -59,7 +69,7 @@ Write a short summary with these sections. Use 1-3 sentences each — be terse:
 ```
 ## Branch: <branch-name>
 
-**Goal:** <What you're trying to accomplish, from ticket/PR/conversation context>
+**Goal:** <What you're trying to accomplish, from ticket/PR/plan/conversation context>
 
 **Done so far:**
 - <bullet per commit or logical chunk of work>
@@ -76,5 +86,5 @@ Write a short summary with these sections. Use 1-3 sentences each — be terse:
 
 - **Be brief.** This is a memory jogger, not a status report.
 - Prefer concrete details (file names, function names) over abstract descriptions.
-- If you can't determine the goal (no ticket, no PR, no conversation context), say so and summarize purely from the diff.
+- If you can't determine the goal (no ticket, no PR, no plan), say so and summarize purely from the diff.
 - Do NOT read the full contents of changed files — the diff stat and commit messages are sufficient.

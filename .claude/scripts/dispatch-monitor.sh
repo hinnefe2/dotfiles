@@ -31,8 +31,8 @@ for TICKET in $TICKETS; do
   WORKTREE=$(jq -r '.worktree' "$WORKER_STATE")
   TMUX_WIN=$(jq -r '.tmux_window' "$WORKER_STATE")
 
-  # Skip completed or errored workers
-  [[ "$STATUS" == "done" || "$STATUS" == "error" ]] && continue
+  # Skip completed, errored, or paused (needs_attention) workers
+  [[ "$STATUS" == "done" || "$STATUS" == "error" || "$STATUS" == "needs_attention" ]] && continue
 
   # Check if tmux window still exists
   if ! tmux list-windows -t "dev" -F '#{window_name}' 2>/dev/null | grep -qx "$TMUX_WIN"; then
@@ -66,18 +66,12 @@ for TICKET in $TICKETS; do
     implementing)
       if [[ -f "$DISPATCH_DIR/$TICKET/implementing.done" ]]; then
         # Auto-transition: implementing → peer_reviewing
-        # Switch from acceptEdits → plan mode (1x BTab)
+        # No mode switching needed — workers run with --dangerously-skip-permissions
         jq '.phase = "peer_reviewing" | .status = "running"' "$WORKER_STATE" > "$WORKER_STATE.tmp" && mv "$WORKER_STATE.tmp" "$WORKER_STATE"
 
-        tmux send-keys -t "dev:$TMUX_WIN" BTab
-        sleep 1
-
-        # Write peer review instructions to temp file for clean delivery
-        REVIEW_INSTRUCTIONS="Run /peer-review $REVIEWERS on the current branch changes. Save the full review output to ~/.claude/dispatch/$TICKET/review-output.md. When done: touch ~/.claude/dispatch/$TICKET/peer_reviewing.done and WAIT for further instructions."
-        TMPFILE=$(mktemp)
-        echo "$REVIEW_INSTRUCTIONS" > "$TMPFILE"
-        tmux send-keys -t "dev:$TMUX_WIN" "$(cat "$TMPFILE")" Enter
-        rm -f "$TMPFILE"
+        # Send /peer-review as direct user input (skill has disable-model-invocation,
+        # so it must be typed as a slash command, not invoked via Skill() tool)
+        tmux send-keys -t "dev:$TMUX_WIN" "/peer-review $REVIEWERS" Enter
 
         changes+=("{\"ticket\":\"$TICKET\",\"change\":\"peer_reviewing\",\"reason\":\"auto-transition to peer review\"}")
       fi
